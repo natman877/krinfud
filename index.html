@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Krinfud Digitals · Digital Marketing Agency in Ethiopia</title>
+    <meta name="description" content="Krinfud Digitals is a leading digital marketing agency in Ethiopia offering branding, web development, social media, SEO, and more." />
+    <meta name="keywords" content="digital marketing Ethiopia, branding, web development, SEO, social media Ethiopia, Krinfud" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:opsz,wght@14..32,300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- GSAP + ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <!-- Lenis Smooth Scroll -->
+    <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #1a0a0a;
+            color: #f5f5f5;
+            font-family: 'Inter', 'Space Grotesk', sans-serif;
+            overflow-x: hidden;
+            cursor: none;
+        }
+        .cursor-dot { width: 8px; height: 8px; background: #D4A843; border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; mix-blend-mode: difference; transition: transform 0.15s ease; }
+        .cursor-ring { width: 40px; height: 40px; border: 1px solid rgba(212, 168, 67, 0.25); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9998; transition: all 0.2s ease; backdrop-filter: blur(2px); }
+        .grain { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9997; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.06'/%3E%3C/svg%3E"); opacity: 0.3; mix-blend-mode: overlay; }
+
+        nav { position: fixed; top: 0; left: 0; width: 100%; padding: 1.8rem 4rem; display: flex; justify-content: space-between; align-items: center; z-index: 100; mix-blend-mode: difference; background: transparent; }
+        .nav-logo { font-family: 'Space Grotesk', sans-serif; font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; color: #f5f5f5; text-decoration: none; }
+        .nav-logo span { color: #D4A843; }
+        .nav-links { display: flex; gap: 3rem; list-style: none; align-items: center; }
+        .nav-links a { color: #f5f5f5; text-decoration: none; font-size: 0.8rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; transition: color 0.2s; position: relative; }
+        .nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px; background: #D4A843; transition: width 0.3s; }
+        .nav-links a:hover::after { width: 100%; }
+        .nav-cta { background: transparent; border: 1px solid #D4A843; color: #f5f5f5; padding: 0.6rem 2rem; border-radius: 50px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; transition: all 0.3s; cursor: pointer; }
+        .nav-cta:hover { background: #D4A843; color: #000000; box-shadow: 0 0 30px rgba(212,168,67,0.3); }
+
+        #hero {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1a0a0a;
+        }
+
+        /* VIDEO BACKGROUND - Layer 1 */
+        .hero-video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            object-fit: cover;
+            filter: brightness(0.4) contrast(1.1) saturate(1.1);
+        }
+
+        /* Dark overlay - Layer 2 */
+        .hero-video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            background: 
+                radial-gradient(ellipse at center, rgba(26,10,10,0.2) 0%, rgba(26,10,10,0.75) 100%),
+                linear-gradient(180deg, rgba(26,10,10,0.4) 0%, rgba(26,10,10,0.15) 50%, rgba(0,0,0,0.85) 100%);
+            pointer-events: none;
+        }
+
+        /* THREE.JS CONTAINER - Layer 3 (rotating text) */
+        #three-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        /* CENTER LOGO - Layer 10 (on top) */
+        .center-logo { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; pointer-events: none; }
+        .center-logo img { width: 150px; height: 150px; object-fit: contain; filter: drop-shadow(0 0 40px rgba(212,168,67,0.7)); }
+        .logo-placeholder { width: 140px; height: 140px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #fff8ec, #D4A843); display: flex; align-items: center; justify-content: center; font-family: 'Anton', sans-serif; font-size: 3rem; color: #1a0a0a; box-shadow: 0 0 50px rgba(212,168,67,0.6); }
+        .hero-overlay-text { position: absolute; bottom: 12%; left: 0; width: 100%; z-index: 5; text-align: center; pointer-events: none; }
+        .hero-overlay-text .sub { font-size: 1rem; letter-spacing: 0.35em; text-transform: uppercase; color: #6B6B6B; font-weight: 400; opacity: 0.85; }
+        .scroll-down { position: absolute; bottom: 3rem; left: 50%; transform: translateX(-50%); z-index: 10; color: #6B6B6B; font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 0.6rem; opacity: 0.6; }
+        .scroll-down .line { width: 1px; height: 50px; background: linear-gradient(to bottom, #D4A843, transparent); }
+
+        section { padding: 8rem 5rem; position: relative; background: #000000; }
+        .section-label { font-size: 0.75rem; letter-spacing: 0.3em; text-transform: uppercase; color: #D4A843; margin-bottom: 1rem; }
+        .section-title { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2.6rem, 5vw, 4.5rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; color: #f5f5f5; }
+        .section-desc { color: #6B6B6B; font-size: 1.2rem; max-width: 700px; line-height: 1.7; margin-top: 1.5rem; }
+
+        .keywords-marquee { overflow: hidden; padding: 4rem 0; background: #8B2635; border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .marquee-track { display: flex; gap: 4rem; animation: marquee 40s linear infinite; white-space: nowrap; }
+        .marquee-track:hover { animation-play-state: paused; }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .keyword-item { font-family: 'Space Grotesk', sans-serif; font-size: 2.8rem; font-weight: 600; color: rgba(255,255,255,0.15); text-transform: uppercase; letter-spacing: -0.02em; transition: color 0.3s; }
+        .keyword-item:hover { color: #D4A843; }
+
+        .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; margin-top: 3rem; align-items: center; }
+        .about-text p { color: #b0b0b0; line-height: 1.8; margin-bottom: 1.5rem; font-size: 1.05rem; }
+        .about-highlight { color: #D4A843; font-weight: 500; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        .stat-item { border-left: 2px solid #D4A843; padding-left: 1.5rem; }
+        .stat-item h3 { font-size: 2.8rem; font-weight: 700; color: #D4A843; }
+        .stat-item p { color: #6B6B6B; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; }
+
+        .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; }
+        .service-card { background: #111111; padding: 2.5rem 2rem; border-radius: 1.5rem; border: 1px solid rgba(255,255,255,0.03); transition: all 0.3s; text-align: center; }
+        .service-card:hover { transform: translateY(-6px); border-color: rgba(212,168,67,0.2); box-shadow: 0 20px 40px -15px rgba(139,38,53,0.3); }
+        .service-card .icon { font-size: 2.5rem; margin-bottom: 1rem; display: block; }
+        .service-card h4 { font-size: 1.3rem; font-weight: 600; margin-bottom: 0.8rem; color: #f5f5f5; }
+        .service-card p { color: #6B6B6B; font-size: 0.95rem; line-height: 1.6; }
+
+        .partner-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin-top: 3rem; }
+        .partner-item { background: #111111; padding: 2rem; border-radius: 1rem; border: 1px solid rgba(255,255,255,0.03); text-align: center; font-weight: 600; color: #6B6B6B; transition: all 0.3s; }
+        .partner-item:hover { border-color: rgba(212,168,67,0.3); color: #f5f5f5; }
+
+        .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin-top: 3rem; }
+        .team-member { background: #111111; padding: 2rem; border-radius: 1.5rem; border: 1px solid rgba(255,255,255,0.03); text-align: center; transition: all 0.3s; }
+        .team-member:hover { transform: translateY(-4px); border-color: rgba(212,168,67,0.2); }
+        .team-member .avatar { width: 80px; height: 80px; border-radius: 50%; background: #8B2635; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #D4A843; }
+        .team-member h4 { font-size: 1.1rem; font-weight: 600; }
+        .team-member p { color: #6B6B6B; font-size: 0.85rem; margin-top: 0.3rem; }
+
+        .testimonial-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; margin-top: 3rem; }
+        .testimonial-card { background: #111111; padding: 2.5rem; border-radius: 1.5rem; border: 1px solid rgba(255,255,255,0.03); }
+        .testimonial-card p { color: #b0b0b0; line-height: 1.7; font-size: 1rem; font-style: italic; }
+        .testimonial-card .author { color: #D4A843; margin-top: 1rem; font-weight: 600; font-style: normal; }
+
+        .cta-section { background: radial-gradient(ellipse at 30% 50%, rgba(139,38,53,0.15), transparent 70%); padding: 8rem 5rem; text-align: center; border-top: 1px solid rgba(255,255,255,0.03); }
+        .cta-section h2 { font-size: clamp(3rem, 6vw, 5rem); font-weight: 800; letter-spacing: -0.02em; }
+        .cta-section .quote { color: #D4A843; font-size: 1.2rem; letter-spacing: 0.1em; margin-top: 1rem; font-style: italic; }
+        .cta-btn { margin-top: 3rem; background: #D4A843; border: none; color: #000000; padding: 1.2rem 4rem; border-radius: 60px; font-weight: 700; font-size: 1rem; letter-spacing: 0.08em; transition: all 0.3s; cursor: pointer; box-shadow: 0 0 40px rgba(212,168,67,0.2); }
+        .cta-btn:hover { transform: scale(1.05); box-shadow: 0 0 70px rgba(212,168,67,0.4); background: #8B2635; color: #f5f5f5; }
+
+        .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; margin-top: 3rem; }
+        .contact-info h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.8rem; margin-bottom: 1.5rem; color: #f5f5f5; }
+        .contact-info p { color: #b0b0b0; line-height: 1.8; margin-bottom: 1rem; }
+        .contact-info .detail { display: flex; gap: 1rem; margin-bottom: 1.2rem; align-items: center; }
+        .contact-info .detail .icon-wrap { width: 40px; height: 40px; background: rgba(212,168,67,0.1); border: 1px solid rgba(212,168,67,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #D4A843; flex-shrink: 0; }
+        .contact-info .detail span { color: #b0b0b0; font-size: 0.95rem; }
+        .contact-form { display: flex; flex-direction: column; gap: 1rem; }
+        .contact-form input,
+        .contact-form textarea {
+            background: #111111;
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 1rem 1.2rem;
+            border-radius: 0.6rem;
+            color: #f5f5f5;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+        .contact-form input:focus,
+        .contact-form textarea:focus { outline: none; border-color: #D4A843; background: #1a1a1a; }
+        .contact-form textarea { resize: vertical; min-height: 140px; }
+        .contact-form button {
+            background: #D4A843;
+            color: #000;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            align-self: flex-start;
+        }
+        .contact-form button:hover { background: #8B2635; color: #f5f5f5; transform: translateY(-2px); box-shadow: 0 10px 30px rgba(139,38,53,0.4); }
+
+        footer { background: #000000; padding: 4rem 5rem 2rem; border-top: 1px solid rgba(255,255,255,0.04); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2rem; }
+        footer .copy { color: #6B6B6B; font-size: 0.8rem; }
+        footer .socials a { color: #6B6B6B; margin-left: 1.5rem; text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+        footer .socials a:hover { color: #D4A843; }
+
+        @media (max-width: 1024px) {
+            nav { padding: 1.2rem 1.5rem; }
+            .nav-links { gap: 1.5rem; }
+            .nav-links a { font-size: 0.7rem; }
+            section { padding: 4rem 1.5rem; }
+            .about-grid, .contact-grid { grid-template-columns: 1fr; }
+            .services-grid { grid-template-columns: 1fr 1fr; }
+            .partner-grid { grid-template-columns: 1fr 1fr; }
+            .team-grid { grid-template-columns: 1fr 1fr; }
+            .testimonial-grid { grid-template-columns: 1fr; }
+            .stat-grid { grid-template-columns: 1fr 1fr; }
+            .center-logo img { width: 120px; height: 120px; }
+            .logo-placeholder { width: 110px; height: 110px; font-size: 2.5rem; }
+        }
+        @media (max-width: 600px) {
+            .nav-links { display: none; }
+            .services-grid, .partner-grid, .team-grid, .stat-grid { grid-template-columns: 1fr; }
+            .cta-section { padding: 4rem 1.5rem; }
+            .center-logo img { width: 100px; height: 100px; }
+            .logo-placeholder { width: 90px; height: 90px; font-size: 2rem; }
+            footer { flex-direction: column; align-items: center; text-align: center; }
+            footer .socials { margin-top: 1rem; }
+            footer .socials a { margin: 0 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cursor-dot"></div>
+    <div class="cursor-ring"></div>
+    <div class="grain"></div>
+
+    <!-- NAV -->
+    <nav>
+        <a href="#" class="nav-logo">KRINFUD <span>.</span></a>
+        <ul class="nav-links">
+            <li><a href="#about">About</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#team">Team</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><button class="nav-cta">Let's talk</button></li>
+        </ul>
+    </nav>
+
+    <!-- HERO: VIDEO + ROTATING 3D TEXT + LOGO -->
+    <section id="hero">
+        <!-- Layer 1: Video background -->
+        <video class="hero-video" autoplay muted loop playsinline poster="kki.png">
+            <source src="hero-video.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+        </video>
+
+        <!-- Layer 2: Dark overlay -->
+        <div class="hero-video-overlay"></div>
+
+        <!-- Layer 3: Three.js rotating "KRINFUD DIGITAL" text -->
+        <div id="three-container"></div>
+
+      
+        <!-- Layer 5: Bottom text -->
+        <div class="hero-overlay-text">
+            <div class="sub">Digital Marketing Agency in Ethiopia</div>
+        </div>
+        <div class="scroll-down">
+            <span>Scroll</span>
+            <div class="line"></div>
+        </div>
+    </section>
+
+    
+    <!-- THREE.JS — Rotating "KRINFUD DIGITAL" cylinder -->
+    <script>
+        (function() {
+            const container = document.getElementById('three-container');
+            const scene = new THREE.Scene();
+            scene.background = null; // transparent so video shows through
+
+            const camera = new THREE.PerspectiveCamera(46, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 0.4, 15);
+            camera.lookAt(0, 0, 0);
+
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            // Lights
+            scene.add(new THREE.AmbientLight(0x4a3530, 1.1));
+            const keyLight = new THREE.PointLight(0xfff3da, 2.2, 40);
+            keyLight.position.set(-4, 3, 10);
+            scene.add(keyLight);
+            const rimLight = new THREE.PointLight(0xD4A843, 1.4, 30);
+            rimLight.position.set(5, -2, 6);
+            scene.add(rimLight);
+
+            // Build text texture for the rotating cylinder
+            function buildTextTexture({ text, repeats, fontPx, mode, color, lineWidth }) {
+                const probe = document.createElement('canvas').getContext('2d');
+                probe.font = `400 ${fontPx}px 'Anton', sans-serif`;
+                const gap = fontPx * 0.9;
+                const unitWidth = probe.measureText(text).width + gap;
+
+                const canvas = document.createElement('canvas');
+                canvas.width = Math.ceil(unitWidth * repeats);
+                canvas.height = Math.ceil(fontPx * 1.6);
+                const ctx = canvas.getContext('2d');
+                ctx.font = `400 ${fontPx}px 'Anton', sans-serif`;
+                ctx.textBaseline = 'middle';
+                ctx.textAlign = 'left';
+
+                for (let i = 0; i < repeats; i++) {
+                    const x = i * unitWidth;
+                    const y = canvas.height / 2;
+                    if (mode === 'fill') {
+                        ctx.fillStyle = color;
+                        ctx.shadowColor = 'rgba(212,168,67,0.4)';
+                        ctx.shadowBlur = 12;
+                        ctx.fillText(text, x, y);
+                    } else {
+                        ctx.lineWidth = lineWidth;
+                        ctx.strokeStyle = color;
+                        ctx.shadowColor = 'rgba(212,168,67,0.2)';
+                        ctx.shadowBlur = 6;
+                        ctx.strokeText(text, x, y);
+                    }
+                }
+                const texture = new THREE.CanvasTexture(canvas);
+                texture.anisotropy = 8;
+                texture.needsUpdate = true;
+                return texture;
+            }
+
+            const LABEL = 'KRINFUD DIGITAL  \u2022  ';
+            const REPEATS = 4;
+            const RADIUS = 5.6;
+
+            const ringGroup = new THREE.Group();
+            scene.add(ringGroup);
+
+            const frontTexture = buildTextTexture({
+                text: LABEL, repeats: REPEATS, fontPx: 160, mode: 'fill', color: '#f7efe0',
+            });
+            const frontMesh = new THREE.Mesh(
+                new THREE.CylinderGeometry(RADIUS, RADIUS, 2.8, 96, 1, true),
+                new THREE.MeshStandardMaterial({
+                    map: frontTexture,
+                    transparent: true,
+                    side: THREE.FrontSide,
+                    emissive: 0x3a2410,
+                    emissiveIntensity: 0.6,
+                    roughness: 0.35,
+                    metalness: 0.4,
+                })
+            );
+            frontMesh.position.y = 0;
+            ringGroup.add(frontMesh);
+
+            function resizeScale() {
+                const s = Math.min(1, Math.max(0.55, window.innerWidth / 1400));
+                ringGroup.scale.setScalar(s);
+            }
+            resizeScale();
+
+            const rotSpeed = 0.0022;
+            function animate() {
+                requestAnimationFrame(animate);
+                ringGroup.rotation.y += rotSpeed;
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                resizeScale();
+            });
+        })();
+    </script>
+
+    <!-- Lenis + GSAP -->
+    <script>
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        });
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => lenis.raf(time * 1000));
+        gsap.ticker.lagSmoothing(0);
+        gsap.registerPlugin(ScrollTrigger);
+        
+        document.querySelectorAll('.service-card, .partner-item, .team-member, .testimonial-card, .stat-item, .contact-info, .contact-form').forEach((el, i) => {
+            gsap.from(el, {
+                scrollTrigger: { trigger: el, start: 'top 90%', toggleActions: 'play none none none' },
+                opacity: 0, y: 40, duration: 0.9, delay: i * 0.05, ease: 'power3.out',
+            });
+        });
+        
+        window.addEventListener('load', () => {
+            gsap.from('.hero-video', { opacity: 0, scale: 1.1, duration: 2, delay: 0.1, ease: 'power3.out' });
+            gsap.from('.hero-video-overlay', { opacity: 0, duration: 1.5, delay: 0.3, ease: 'power3.out' });
+            gsap.from('#three-container', { opacity: 0, duration: 1.6, delay: 0.4, ease: 'power3.out' });
+            gsap.from('.center-logo', { opacity: 0, scale: 0.8, duration: 1.2, delay: 0.5, ease: 'power3.out' });
+            gsap.from('.hero-overlay-text .sub', { opacity: 0, y: 20, duration: 1, delay: 0.7, ease: 'power3.out' });
+            gsap.from('.scroll-down', { opacity: 0, duration: 1, delay: 1.2 });
+        });
+        
+        const dot = document.querySelector('.cursor-dot');
+        const ring = document.querySelector('.cursor-ring');
+        document.addEventListener('mousemove', (e) => {
+            gsap.to(dot, { x: e.clientX - 4, y: e.clientY - 4, duration: 0.1 });
+            gsap.to(ring, { x: e.clientX - 20, y: e.clientY - 20, duration: 0.2 });
+        });
+        
+        document.querySelectorAll('.nav-cta, .cta-btn, .contact-form button').forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                ring.style.transform = 'scale(1.6)';
+                ring.style.borderColor = '#D4A843';
+            });
+            btn.addEventListener('mouseleave', () => {
+                ring.style.transform = 'scale(1)';
+                ring.style.borderColor = 'rgba(212,168,67,0.25)';
+            });
+        });
+    </script>
+
+</body>
+</html>
